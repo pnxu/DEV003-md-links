@@ -1,5 +1,4 @@
-const path = require('path');
-const fs = require('fs');
+/* eslint-disable max-len */
 const utils = require('./utils.js');
 
 // funcion md links que acepta dos parametros
@@ -23,19 +22,25 @@ const mdLinks = (userPath, options) => {
       if (isMarkdown) {
         mdPaths.push(absolutePath);
         console.log('the file is markdown');
-        console.log('reading content, searching for links');
       } else {
-        console.log('markdown files is not provided.rejecting promise');
+        reject('markdown files not provided');
       }
     }
-    console.log(mdPaths);
-    // else
-    // ver si es un archivo md
-    //  si es un directorio, para sacar los archivos md.
-    // resolve()
+    if (mdPaths.length === 0) reject('md files not found');
+    console.log('reading content, searching for links');
+    let output = mdPaths.map((path) => {
+      console.log('path', path);
+      return utils.getLinks(path, options.validate);
+    });
+    Promise.all(output).then((results) => {
+      resolve(results.flat());
+    });
   });
 };
-mdLinks('.');
+
+// mdLinks('folder', { validate: true })
+// .then((result) => console.log('result', result))
+// .catch((err) => console.error(err));
 
 module.exports = {
   mdLinks

@@ -1,8 +1,7 @@
+/* eslint-disable max-len */
 const path = require('path');
 const fs = require('fs');
-// const marked = require("marked");
-// const markdownLinkExtractor = require('markdown-link-extractor');
-// const axios = require('axios');
+const axios = require('axios');
 
 // Check synchronously if given path exists.
 const pathExists = (userPath) => fs.existsSync(userPath);
@@ -37,27 +36,9 @@ const isDirectory = (userPath) => fs.lstatSync(userPath).isDirectory();
 const fileIsMarkdown = (userPath) => path.extname(userPath) === '.md';
 // console.log(getExtension('/home/pnxu/workspace/DEV003-md-links/README.js'))
 
-// Read a file synchronously
-// return Buffer
-// TODO:  - Change to async read
-//        - DRY dont repeat yourself (dont re-declare functions that
-//  do the exact same thing
-const readFileSync = (userPath) => fs.readFileSync(userPath, 'utf-8');
-// console.log(readFileSync('README.md'));
-
 // Read the directory content
 const readDirectory = (userPath) => fs.readdirSync(userPath);
 // console.log(readDirectory('/home/pnxu/workspace/DEV003-md-links'));
-
-// Check if the directory of a given path contain files
-const isThereFiles = (userPath) => {
-  if (fs.readdirSync(userPath).length > 0) {
-    return true;
-  } else {
-    return false;
-  }
-};
-// console.log(isThereFiles('/home/pnxu/workspace/DEV003-md-links/'))
 
 // This function reads files in a directory and their subdirectories
 //  recursively, and filter the .md files.
@@ -79,43 +60,72 @@ const getMdFilesInDirectory = (userPath) => {
   return mdFiles;
 };
 
-// get links
-// const getLinks = (userPath) => {
-//   const mdFiles = getMdFiles(userPath);
-//   const links = mdFiles.flatMap((file) => {
-//     const markdown = fs.readFileSync(file, "utf-8");
-//     const renderer = new marked.Renderer();
-//     const linkList = [];
-//     renderer.link =  (href, title, text) => {
-//       linkList.push({
-//         href: href,
-//         text: text,
-//         file: file,
-//       });
-//     };
-//     marked(markdown, { renderer });
-//     return linkList;
-//   });
-//   return links;
-// };
-// console.log(getLinks('/home/pnxu/workspace/DEV003-md-links/carpeta/'));
+const getLinkStatus = (link) => {
+  return axios
+    .get(link)
+    .then((response) => {
+      return {
+        status: response.status,
+        statusText: response.statusText
+      };
+    })
+    .catch((error) => {
+      return {
+        status: error.code,
+        statusText: error.message
+      };
+    });
+};
 
-// const getLinks = (userPath) => {
-//     const mdFiles = getMdFiles(userPath);
-//     const links = mdFiles.flatMap((file) => {
-//       const markdown = fs.readFileSync(file, "utf-8");
-//       const extractor = markdownLinkExtractor;
-//       return extractor.extractLinks(markdown).map((link) => {
-//         return {
-//         href: link.href,
-//         text: link.text,
-//         file: file,
-//         };
-//       });
-//     });
-//     return links;
-//   };
-// console.log(getLinks('/home/pnxu/workspace/DEV003-md-links/carpeta/'));
+const getLinks = (userPath, validate) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(userPath, 'utf8', (err, data) => {
+      if (err) {
+        console.error('Error:', err);
+        reject(err);
+        return;
+      }
+      const links = data.match(/\[(.+?)\]\((https?:\/\/[^\s]+)\)/g);
+      const arr = links.map((link) => {
+        const matches = link.match(/\[(.+?)\]\((https?:\/\/[^\s]+)\)/);
+        const result = {
+          href: matches[2],
+          text: matches[1],
+          file: userPath
+        };
+        // console.log({links, matches, result})
+        if (validate) {
+          return getLinkStatus(result.href)
+            .then((response) => {
+              if (response.status !== 200) {
+                result.status = 400;
+                result.statusText = 'FAIL';
+                return result;
+              }
+              result.status = response.status;
+              result.statusText = response.statusText;
+              return result;
+            })
+            .catch((err) => {
+              console.error(
+                `There was an error requesting ${result.href}`,
+                err
+              );
+              return err;
+            });
+        }
+        return result;
+      });
+      if (validate) {
+        Promise.all(arr)
+          .then((results) => resolve(results))
+          .catch((error) => reject(error));
+        return;
+      }
+      resolve(arr);
+    });
+  });
+};
 
 module.exports = {
   pathExists,
@@ -123,9 +133,9 @@ module.exports = {
   resolveToAbsolutePath,
   isFile,
   isDirectory,
+  getLinkStatus,
   fileIsMarkdown,
-  readFileSync,
   readDirectory,
-  isThereFiles,
-  getMdFilesInDirectory
+  getMdFilesInDirectory,
+  getLinks
 };
