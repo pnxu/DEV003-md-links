@@ -86,6 +86,10 @@ const getLinks = (userPath, validate) => {
         return;
       }
       const links = data.match(/\[(.+?)\]\((https?:\/\/[^\s]+)\)/g);
+      if (!links) {
+        resolve([]);
+        return;
+      }
       const arr = links.map((link) => {
         const matches = link.match(/\[(.+?)\]\((https?:\/\/[^\s]+)\)/);
         const result = {
@@ -98,6 +102,7 @@ const getLinks = (userPath, validate) => {
           return getLinkStatus(result.href)
             .then((response) => {
               if (response.status !== 200) {
+                console.log('BROKEN LINK');
                 result.status = 400;
                 result.statusText = 'FAIL';
                 return result;
