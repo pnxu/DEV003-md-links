@@ -5,14 +5,15 @@ const getStatsSummary = (result, { stats, validate }) => {
   const totalLinks = result.length;
   const uniqLinks = new Set(result.map((element) => element.href)).size;
   if (totalLinks === 0) return 'No links found';
-  const statsResult = {
-    Total: totalLinks,
-    Unique: uniqLinks
-  };
+  let statsResult = `
+    Total:  ${totalLinks}
+    Unique: ${uniqLinks}
+    `;
   if (validate) {
     const brokenLinks = new Set(result.filter((href) => href.status >= 400))
       .size;
-    statsResult.Broken = brokenLinks;
+    statsResult += `Broken: ${brokenLinks}
+    `;
   }
   console.log(statsResult);
 };
