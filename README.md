@@ -8,8 +8,6 @@ However, Markdown files often contain links that are broken or no longer valid, 
 
 ## Table of contents
 
----
-
 - [1. Installation](#1-installation)
 - [2. API usage](#2-api-usage)
 - [3. CLI Usage](#3-cli-usage)
@@ -19,8 +17,6 @@ However, Markdown files often contain links that are broken or no longer valid, 
 
 ## 1. Installation
 
----
-
 To use md-links-pnxu, you need to have Node.js and npm installed on your computer. Once you have those, you can install MD-Links using npm with the following command:
 
 ```js
@@ -28,8 +24,6 @@ $ npm install @pnxu/md-links
 ```
 
 ## 2. API usage
-
----
 
 To use MD-Links in your JavaScript project, you can simply import it as a module:
 
@@ -101,8 +95,6 @@ mdLinks('./some/dir')
 
 ## 3. CLI usage
 
----
-
 You can use the md-links command-line tool to analyze Markdown files and extract links. Here's the basic usage:
 
 ```js
@@ -140,8 +132,6 @@ $ md-links example.md --validate --stats
 
 ## 4. Help
 
----
-
 If you need assistance using the md-links command line tool, you can access the help documentation by using the following command:
 
 ```js
@@ -157,8 +147,6 @@ $ md-links --h
 The help documentation provides an overview of the available commands, options, and arguments that can be used with the md-links tool. If you have any further questions or issues, please consult the documentation or reach out to the software author for support.
 
 ## 5. Flowcharts
-
----
 
 ### API
 
