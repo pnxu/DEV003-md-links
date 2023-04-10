@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+const { mdLinks } = require('../src/md-links.js');
 const utils = require('../src/utils.js');
 const fs = require('fs');
 
