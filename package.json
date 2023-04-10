@@ -1,5 +1,5 @@
 {
-  "name": "mdlinks-validator",
+  "name": "@pnxu/md-links",
   "version": "0.1.0",
   "description": "mdlinks-validator is a library that allows to extract links from markdown files to verify their http status and provide statisctics",
   "engines": {
